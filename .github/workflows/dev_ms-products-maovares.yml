@@ -16,7 +16,7 @@ jobs:
     env:  # Variables para todo el job
       SPRING_PROFILES_ACTIVE: dev
       MONGO_URI: ${{ secrets.MONGO_URI }}
-      ANOTHER_SECRET: ${{ vars.MONGO_DB }}
+      MONGO_DB: ${{ vars.MONGO_DB }}
 
     permissions:
       contents: read #This is required for actions/checkout
