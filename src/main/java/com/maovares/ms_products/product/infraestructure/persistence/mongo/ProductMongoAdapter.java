@@ -10,6 +10,9 @@ import org.springframework.stereotype.Repository;
 import com.maovares.ms_products.product.domain.model.Product;
 import com.maovares.ms_products.product.domain.port.ProductRepository;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Repository
 public class ProductMongoAdapter implements ProductRepository {
 
@@ -25,6 +28,9 @@ public class ProductMongoAdapter implements ProductRepository {
         Query query = new Query().skip(skip).limit(size);
         query.with(Sort.by(Sort.Direction.ASC, "_id"));
         List<ProductDocument> docs = mongoTemplate.find(query, ProductDocument.class);
+
+        log.info("Docs encontrados: {}", docs.size());
+
         return docs.stream()
                 .map(doc -> new Product(doc.getId(), doc.getPrice(), doc.getDescription()))
                 .toList();
