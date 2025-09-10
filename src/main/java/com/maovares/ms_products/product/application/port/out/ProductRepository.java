@@ -11,4 +11,6 @@ public interface ProductRepository {
     Page<Product> findAll(Pageable pageable);
 
     Optional<Product> findById(String id);
+
+    Product save(Product product);
 }
