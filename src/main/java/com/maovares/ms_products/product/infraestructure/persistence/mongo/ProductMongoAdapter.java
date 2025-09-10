@@ -1,11 +1,13 @@
 package com.maovares.ms_products.product.infraestructure.persistence.mongo;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
@@ -44,5 +46,14 @@ public class ProductMongoAdapter implements ProductRepository {
         long totalProducts = mongoTemplate.count(new Query(), ProductDocument.class);
 
         return new PageImpl<>(products, pageable, totalProducts);
+    }
+
+    @Override
+    public Optional<Product> findById(String id) {
+        Query query = new Query(Criteria.where("id").is(id));
+        ProductDocument productDocument = mongoTemplate.findOne(query, ProductDocument.class);
+        return Optional.ofNullable(productDocument)
+                .map(doc -> new Product(doc.getId(), doc.getPrice(), doc.getDescription(), doc.getImage(),
+                        doc.getTitle()));
     }
 }

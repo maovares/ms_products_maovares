@@ -6,5 +6,5 @@ import org.springframework.data.domain.Pageable;
 import com.maovares.ms_products.product.domain.model.Product;
 
 public interface GetProductsQuery {
-    Page<Product> getProducts(Pageable pageable);
+    Page<Product> execute(Pageable pageable);
 }

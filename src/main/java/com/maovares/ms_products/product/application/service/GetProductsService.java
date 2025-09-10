@@ -18,7 +18,7 @@ public class GetProductsService implements GetProductsQuery {
     }
 
     @Override
-    public Page<Product> getProducts(Pageable pageable) {
+    public Page<Product> execute(Pageable pageable) {
         return productRepository.findAll(pageable);
     }
 }
