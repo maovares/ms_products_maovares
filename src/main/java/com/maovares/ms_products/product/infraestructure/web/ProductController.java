@@ -36,7 +36,7 @@ public class ProductController {
         @GetMapping
         public PagedResponseDto<ProductResponseDto> getProducts(Pageable pageable) {
 
-                Page<Product> products = getProductsQuery.getProducts(pageable);
+                Page<Product> products = getProductsQuery.execute(pageable);
 
                 List<ProductResponseDto> content = products.getContent()
                                 .stream()
