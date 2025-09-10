@@ -1,13 +1,18 @@
 package com.maovares.ms_products.product.infraestructure.web;
 
-import org.springframework.http.ResponseEntity;
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.maovares.ms_products.product.application.dto.PaginatedProductsResponse;
-import com.maovares.ms_products.product.application.service.PaginatedProductSearch;
+import com.maovares.ms_products.product.application.port.in.GetProductsQuery;
+import com.maovares.ms_products.product.domain.model.Product;
+import com.maovares.ms_products.product.infraestructure.web.dto.PagedResponseDto;
+import com.maovares.ms_products.product.infraestructure.web.dto.ProductResponseDto;
+import com.maovares.ms_products.product.infraestructure.web.dto.mapper.ProductDtoMapper;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,28 +24,31 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/products")
 public class ProductController {
-        private final PaginatedProductSearch paginatedProductSearch;
+        private final GetProductsQuery getProductsQuery;
 
-        public ProductController(PaginatedProductSearch paginatedProductSearch) {
-                this.paginatedProductSearch = paginatedProductSearch;
+        public ProductController(GetProductsQuery getProductsQuery) {
+                this.getProductsQuery = getProductsQuery;
         }
 
         @Operation(summary = "Get paginated product lists", description = "Returns a paginated product lists, includes optional params like: page and size.")
-        @ApiResponse(responseCode = "200", description = "Paginated product list", content = @Content(schema = @Schema(implementation = PaginatedProductsResponse.class)))
+        @ApiResponse(responseCode = "200", description = "Paginated product list", content = @Content(schema = @Schema(implementation = PagedResponseDto.class)))
         @ApiResponse(responseCode = "400", description = "Invalid params")
         @GetMapping
-        public ResponseEntity<PaginatedProductsResponse> getProducts(
-                        @RequestParam(defaultValue = "1") int page,
-                        @RequestParam(defaultValue = "10") int size) {
+        public PagedResponseDto<ProductResponseDto> getProducts(Pageable pageable) {
 
-                if (page < 1) {
-                        return ResponseEntity.badRequest().build();
-                }
+                Page<Product> products = getProductsQuery.getProducts(pageable);
 
-                int adjustedPage = Math.max(page - 1, 0);
+                List<ProductResponseDto> content = products.getContent()
+                                .stream()
+                                .map(ProductDtoMapper::toResponse)
+                                .toList();
 
-                PaginatedProductsResponse response = paginatedProductSearch.execute(adjustedPage, size);
-                return ResponseEntity.ok(response);
+                return new PagedResponseDto<>(
+                                content,
+                                products.getNumber(),
+                                products.getSize(),
+                                products.getTotalElements(),
+                                products.getTotalPages());
         }
 
 }

@@ -2,13 +2,15 @@ package com.maovares.ms_products.product.infraestructure.persistence.mongo;
 
 import java.util.List;
 
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import com.maovares.ms_products.product.application.port.out.ProductRepository;
 import com.maovares.ms_products.product.domain.model.Product;
-import com.maovares.ms_products.product.domain.port.ProductRepository;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,21 +25,24 @@ public class ProductMongoAdapter implements ProductRepository {
     }
 
     @Override
-    public List<Product> findAll(int page, int size) {
-        int skip = page * size;
-        Query query = new Query().skip(skip).limit(size);
-        query.with(Sort.by(Sort.Direction.ASC, "_id"));
-        List<ProductDocument> docs = mongoTemplate.find(query, ProductDocument.class);
+    public Page<Product> findAll(Pageable pageable) {
+        long pageSize = pageable.getPageSize();
+        long pageNumber = pageable.getPageNumber();
+        long skip = pageNumber * pageSize;
 
-        log.info("Docs encontrados: {}", docs.size());
+        Query query = new Query()
+                .with(pageable)
+                .skip(skip)
+                .limit((int) pageSize);
 
-        return docs.stream()
-                .map(doc -> new Product(doc.getId(), doc.getPrice(), doc.getDescription()))
+        List<ProductDocument> productDocuments = mongoTemplate.find(query, ProductDocument.class);
+        List<Product> products = productDocuments.stream()
+                .map(doc -> new Product(doc.getId(), doc.getPrice(), doc.getDescription(), doc.getImage(),
+                        doc.getTitle()))
                 .toList();
-    }
 
-    @Override
-    public long count() {
-        return mongoTemplate.count(new Query(), ProductDocument.class);
+        long totalProducts = mongoTemplate.count(new Query(), ProductDocument.class);
+
+        return new PageImpl<>(products, pageable, totalProducts);
     }
 }

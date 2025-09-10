@@ -12,14 +12,18 @@ public class ProductDocument {
     private String id;
     private String description;
     private double price;
+    private String title;
+    private String image;
 
     public ProductDocument() {
     }
 
-    public ProductDocument(String id, String description, double price) {
+    public ProductDocument(String id, String description, double price, String title, String image) {
         this.id = id;
         this.description = description;
         this.price = price;
+        this.title = title;
+        this.image = image;
     }
 
 }
