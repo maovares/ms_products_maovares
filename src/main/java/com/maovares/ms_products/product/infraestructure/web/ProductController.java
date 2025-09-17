@@ -2,6 +2,7 @@ package com.maovares.ms_products.product.infraestructure.web;
 
 import java.util.List;
 
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -44,11 +45,11 @@ public class ProductController {
                 this.createProductCommand = createProductCommand;
         }
 
-        @Operation(summary = "Get paginated product lists", description = "Returns a paginated product lists, includes optional params like: page and size.")
+        @Operation(summary = "Get paginated product lists", description = "Returns a paginated product list, supports query params like: page, size, sort.")
         @ApiResponse(responseCode = "200", description = "Paginated product list", content = @Content(schema = @Schema(implementation = PagedResponseDto.class)))
         @ApiResponse(responseCode = "400", description = "Invalid params")
         @GetMapping
-        public PagedResponseDto<ProductResponseDto> getProducts(Pageable pageable) {
+        public PagedResponseDto<ProductResponseDto> getProducts(@ParameterObject Pageable pageable) {
 
                 Page<Product> products = getProductsQuery.execute(pageable);
 
