@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.maovares.ms_products.product.domain.exception.ProductNotFoundException;
-import com.maovares.ms_products.product.infraestructure.http.exception.InvalidCertificateException;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,12 +38,6 @@ public class GlobalExceptionHandler {
         log.warn("Validation failed for request: {} - Errors: {}", methodName, errors);
         
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(InvalidCertificateException.class)
-    public ResponseEntity<String> handleInvalidCertificate(InvalidCertificateException ex) {
-        log.error("Invalid certificate validation failed: {}", ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(Exception.class)
