@@ -102,7 +102,7 @@ public class ProductMongoAdapter implements ProductRepository {
                         log.debug("Converting domain Product to ProductDocument");
                         ProductDocument productDocument = new ProductDocument(product.getId(), product.getDescription(),
                                         product.getPrice(),
-                                        product.getImage(), product.getTitle());
+                                        product.getTitle(), product.getImage());
                         
                         log.debug("Saving ProductDocument to MongoDB collection");
                         ProductDocument savedDocument = mongoTemplate.save(productDocument);
