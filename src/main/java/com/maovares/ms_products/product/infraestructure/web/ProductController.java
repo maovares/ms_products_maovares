@@ -33,7 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Tag(name = "Products", description = "API for product management")
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/v1/products")
 @Slf4j
 public class ProductController {
         private final GetProductsQuery getProductsQuery;
