@@ -63,7 +63,7 @@ public class ProductMongoAdapter implements ProductRepository {
         public Product save(Product product) {
                 ProductDocument productDocument = new ProductDocument(product.getId(), product.getDescription(),
                                 product.getPrice(),
-                                product.getImage(), product.getTitle());
+                                product.getTitle(), product.getImage());
                 ProductDocument savedDocument = mongoTemplate.save(productDocument);
                 return new Product(savedDocument.getId(), savedDocument.getPrice(), savedDocument.getDescription(),
                                 savedDocument.getImage(), savedDocument.getTitle());
