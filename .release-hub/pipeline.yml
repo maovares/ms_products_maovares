@@ -1,0 +1,45 @@
+# Release Hub pipeline of this repository. The hub proposes these steps and a person confirms them in Edit; nothing syncs by itself.
+# Each step here is a dot on the project's card, in the same order. `uses` is a step the hub knows; a step with only `run` is yours.
+# Private files, branch, schedule and secrets are never here: they stay in the hub. `runs-on` and `server` only name machines the hub allows for this project.
+version: 5
+# The branch the hub releases from (main) stays in the hub: the file is read from it.
+name: "ms-products-maovares"
+# on: when a release starts by itself. manual (you press Publish), or any of: `push: true` (a new commit on the branch), `push: { branches: [...] }` (also on those branches; the hub only watches the ones it allows for this project) and `schedule: "03:00"` (a daily time).
+on: manual
+# auto-deploy: whether a release that starts by itself also deploys.
+auto-deploy: false
+
+steps:
+  # Fetch: gets the latest commits and tags from GitHub. Always first. `run` is what it executes; change it to run your own commands instead.
+  - uses: fetch
+    run:
+      - "git fetch origin --tags --prune --force"
+
+  # Sync: puts the clean copy on the branch the hub releases from. Always second. RELEASE_HUB_BRANCH is the branch.
+  - uses: sync
+    run:
+      - "git checkout -q -B \"$RELEASE_HUB_BRANCH\" \"origin/$RELEASE_HUB_BRANCH\""
+      - "git reset -q --hard \"origin/$RELEASE_HUB_BRANCH\""
+      - "git clean -fdq -e node_modules"
+
+  # Verify: commands that must pass before anything is tagged. They run in a clean clone. `runs-on` names the machine (the hub only accepts the ones it allows for this project).
+  - uses: verify
+    run:
+      - "./mvnw -B -ntp verify"
+
+  # Version: chooses the bump and the notes. @claude-bump asks Claude; @patch-bump is always a patch. Your own command must print major, minor or patch on its first line, and the notes after it.
+  - uses: version
+    run:
+      - "@claude-bump"
+
+  # Tag: creates and pushes the version tag. `prefix` is how tags start (v1.2.3). APP_VERSION is the version and RELEASE_HUB_NOTES_FILE has the notes. The tag must end up on the remote or the release stops.
+  - uses: tag
+    prefix: "v"
+    run:
+      - "git tag -a \"$APP_VERSION\" -F \"$RELEASE_HUB_NOTES_FILE\""
+      - "git push origin \"$APP_VERSION\""
+
+  # Release: publishes the GitHub Release. @github-release is the hub's own call to GitHub's API; add commands before or after it, or replace it.
+  - uses: release
+    run:
+      - "@github-release"
