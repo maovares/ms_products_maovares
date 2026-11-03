@@ -43,3 +43,9 @@ steps:
   - uses: release
     run:
       - "@github-release"
+
+  # Deploy: ships that version (it receives the project's variables and secrets and DEPLOY_*). `env-file` is a file the hub writes from them just before the deploy. `server` is where it ships and `url` the address of the app (the hub only accepts a server it allows for this project).
+  - uses: deploy
+    run: "node \"$RELEASE_HUB_HOME/bin/deploy-artifact.mjs\" --build './mvnw -B -ntp package -DskipTests' --artifact 'target/*.jar' --run 'java -jar {artifact}' --service ms-products-maovares --needs java"
+    server: "desktop"
+    url: "http://localhost:8080/"
